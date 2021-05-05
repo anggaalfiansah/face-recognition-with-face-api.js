@@ -18,7 +18,7 @@ export default function ImageInput() {
     const fetch = async () => {
       await faces.loadModels();
       setfaceMatcher(await faces.createMatcher(dataFace));
-      if (!!faceMatcher) {
+      if (faceMatcher) {
         await handleImage();
       } else {
         setCount(Count + 1);
@@ -30,12 +30,12 @@ export default function ImageInput() {
 
   const handleImage = async (image = imageURL) => {
     await faces.getFullFaceDescription(image).then(async (fullDesc) => {
-      if (!!fullDesc) {
+      if (fullDesc) {
         const desc = fullDesc.map((fd) => fd.descriptor);
         const detect = fullDesc.map((fd) => fd.detection);
         console.log(desc);
         console.log(faceMatcher);
-        if (!!desc && !!faceMatcher) {
+        if (desc && faceMatcher) {
           setdetections(detect);
           const match = await desc.map((descriptor) =>
             faceMatcher.findBestMatch(descriptor)
@@ -60,7 +60,7 @@ export default function ImageInput() {
   };
 
   let drawBox = null;
-  if (!!detections) {
+  if (detections) {
     drawBox = detections.map((detection, i) => {
       let _H = detection.box.height;
       let _W = detection.box.width;
@@ -78,7 +78,7 @@ export default function ImageInput() {
               transform: `translate(${_X}px,${_Y}px)`,
             }}
           >
-            {!!match && !!match[i] ? (
+            {match && match[i] ? (
               <p
                 style={{
                   backgroundColor: "blue",
@@ -122,7 +122,7 @@ export default function ImageInput() {
             <div style={{ position: "absolute" }}>
               <img src={imageURL} alt="imageURL" />
             </div>
-            {!!drawBox ? drawBox : null}
+            {drawBox ? drawBox : null}
           </div>
         </div>
       </div>

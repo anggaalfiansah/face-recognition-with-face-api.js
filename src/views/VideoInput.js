@@ -1,13 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as faces from "../api/faces";
 import Webcam from "react-webcam";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 export default function CheckIn() {
   const dataFace = useSelector((state) => state.faceReducer.list);
-  const webcam = React.useRef(null);
+  const webcam = useRef(null);
+  const history = useHistory();
   const inputSize = 160;
   const [WIDTH] = useState(512);
   const [HEIGHT] = useState(512);
@@ -21,7 +22,7 @@ export default function CheckIn() {
     const fetch = async () => {
       await setInputDevice();
       await getfaceData();
-      if (!!faceMatcher) {
+      if (faceMatcher) {
         captured();
       } else {
         setCount(Count + 1);
@@ -52,15 +53,15 @@ export default function CheckIn() {
     await faces.loadModels();
     try {
       const capture = webcam.current.getScreenshot();
-      if (!!capture) {
+      if (capture) {
         faces
           .getFullFaceDescription(capture, inputSize)
           .then(async (fullDesc) => {
-            if (!!fullDesc) {
+            if (fullDesc) {
               const desc = fullDesc.map((fd) => fd.descriptor);
               const detect = fullDesc.map((fd) => fd.detection);
               console.log(desc);
-              if (!!desc && !!faceMatcher) {
+              if (desc && faceMatcher) {
                 setdetections(detect);
                 const match = await desc.map((descriptor) =>
                   faceMatcher.findBestMatch(descriptor)
@@ -86,7 +87,7 @@ export default function CheckIn() {
   };
 
   let videoConstraints = null;
-  if (!!facingMode) {
+  if (facingMode) {
     videoConstraints = {
       width: WIDTH,
       height: HEIGHT,
@@ -95,7 +96,7 @@ export default function CheckIn() {
   }
 
   let drawBox = null;
-  if (!!detections) {
+  if (detections) {
     drawBox = detections.map((detection, i) => {
       let _H = detection.box.height;
       let _W = detection.box.width;
@@ -153,7 +154,7 @@ export default function CheckIn() {
           }}
         >
           <div style={{ position: "relative", width: WIDTH }}>
-            {!!videoConstraints ? (
+            {videoConstraints ? (
               <div style={{ position: "absolute" }}>
                 <Webcam
                   audio={false}
@@ -166,13 +167,13 @@ export default function CheckIn() {
                 />
               </div>
             ) : null}
-            {!!drawBox ? drawBox : null}
+            {drawBox ? drawBox : null}
           </div>
         </div>
       </div>
-      <Link className="btn btn-primary mt-2 col-5" to="/train">
+      <button className="btn btn-primary mt-2 col-5" onClick={history.push("/Train")}>
         Train Face With Camera
-      </Link>
+      </button>
     </div>
   );
 }

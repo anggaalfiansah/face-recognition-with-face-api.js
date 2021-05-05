@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import * as faces from "../api/faces";
 import Webcam from "react-webcam";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import Spinner from "./Loading/Spinner";
 
 export default function Train() {
   const dataFace = useSelector((state) => state.faceReducer.list);
-  const webcam = React.useRef(null);
+  const webcam = useRef(null);
   const inputSize = 160;
   const [WIDTH] = useState(420);
   const [HEIGHT] = useState(420);
@@ -26,11 +26,11 @@ export default function Train() {
     setLoading(true);
     await faces.loadModels();
     const capture = webcam.current.getScreenshot();
-    if (!!capture) {
+    if (capture) {
       faces
         .getFullFaceDescription(capture, inputSize)
         .then(async (fullDesc) => {
-          if (!!fullDesc) {
+          if (fullDesc) {
             const desc = fullDesc.map((fd) => fd.descriptor);
             const detect = fullDesc.map((fd) => fd.detection);
             console.log(desc);
@@ -87,7 +87,7 @@ export default function Train() {
   };
 
   let videoConstraints = null;
-  if (!!facingMode) {
+  if (facingMode) {
     videoConstraints = {
       width: WIDTH,
       height: HEIGHT,
@@ -96,7 +96,7 @@ export default function Train() {
   }
 
   let drawBox = null;
-  if (!!detections) {
+  if (detections) {
     drawBox = detections.map((detection, i) => {
       let _H = detection.box.height;
       let _W = detection.box.width;
@@ -164,7 +164,7 @@ export default function Train() {
           }}
         >
           <div style={{ position: "relative", width: WIDTH }}>
-            {!!videoConstraints ? (
+            {videoConstraints ? (
               <div style={{ position: "absolute" }}>
                 {layout()}
                 <Webcam
@@ -178,7 +178,7 @@ export default function Train() {
                 />
               </div>
             ) : null}
-            {!!drawBox ? drawBox : null}
+            {drawBox ? drawBox : null}
           </div>
         </div>
         <div className="row mt-3 col-10">
@@ -225,9 +225,9 @@ export default function Train() {
             Reset Sample Wajah
           </button>
         </div>
-        <Link className="btn btn-secondary mt-2 col-5" to="/">
+        <button className="btn btn-secondary mt-2 col-5" onClick={()=>history.push("/camera")}>
           Home
-        </Link>
+        </button>
       </div>
     </div>
   );
