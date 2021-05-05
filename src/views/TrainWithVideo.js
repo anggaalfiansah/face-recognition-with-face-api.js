@@ -3,47 +3,28 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import * as faces from "../api/faces";
 import Webcam from "react-webcam";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import Spinner from "./Loading/Spinner";
+import "./styles.css";
 
-export default function TrainWithVideo() {
+export default function Train() {
   const dataFace = useSelector((state) => state.faceReducer.list);
   const webcam = React.useRef(null);
   const inputSize = 160;
-  const [WIDTH, setWIDTH] = useState(720);
+  const [WIDTH] = useState(420);
   const [HEIGHT] = useState(420);
   const [detections, setdetections] = useState();
-  const [facingMode, setfacingmode] = useState("user");
+  const facingMode = useState("user");
   const [Count, setCount] = useState(0);
-  const [ChangeCamera, setChangeCamera] = useState(true);
   const [ListFace, setListFace] = useState([]);
-  const [Nama, setNama] = useState("");
+  const [Loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const history = useHistory();
 
-  useEffect(() => {
-    const fetch = async () => {
-      await setInputDevice();
-      console.log(ListFace);
-    };
-    return fetch();
-  }, [Count]);
-
-  //   Fungsi Untuk Menentukan Camera
-  const setInputDevice = () => {
-    navigator.mediaDevices.enumerateDevices().then(async (devices) => {
-      let inputDevice = await devices.filter(
-        (device) => device.kind === "videoinput"
-      );
-      if (inputDevice.length < 2) {
-        await setfacingmode("user");
-      } else {
-        setChangeCamera(false);
-        setWIDTH(420);
-      }
-    });
-  };
-
-  // Fungsi Untuk Mengcapture gambar dan memprosesnya secara berkala.
+  // Fungsi Untuk Mengcapture gambar dan memprosesnya.
   const captured = async () => {
+    setdetections();
+    setLoading(true);
     await faces.loadModels();
     const capture = webcam.current.getScreenshot();
     if (!!capture) {
@@ -56,6 +37,7 @@ export default function TrainWithVideo() {
             console.log(desc);
             console.log(detect);
             setdetections(detect);
+            setLoading(false);
             if (desc.length === 0) {
               alert("Sample Wajah tidak terdeteksi");
             } else {
@@ -73,17 +55,25 @@ export default function TrainWithVideo() {
     } else {
       setCount(Count + 1);
       console.log(Count);
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetch = async () => {
+      console.log(ListFace.length);
+    };
+    return fetch();
+  }, [Count]);
 
   const submit = () => {
     // Silahkan Atur Minimal Jumlah Sample Wajah
     if (ListFace.length < 5) {
-      alert("Sample wajah kurang banyak");
+      alert("Sample wajah minimal 5");
     } else {
       const listFace = dataFace;
       const Face = {
-        name: Nama,
+        name: document.getElementById("nama-wajah").value,
         descriptors: ListFace,
       };
       listFace.push(Face);
@@ -92,9 +82,8 @@ export default function TrainWithVideo() {
         type: "Submit Face",
         value: listFace,
       });
-      alert(`Wajah Baru Dengan Nama ${Nama} Berhasil Ditambahkan`);
-      setNama("");
       setListFace([]);
+      history.push("/camera");
     }
   };
 
@@ -131,112 +120,116 @@ export default function TrainWithVideo() {
     });
   }
 
+  const layout = () => {
+    if (Loading === true) {
+      return (
+        <div
+          className="my-auto mx-auto"
+          style={{ position: "absolute", width: "100%", height: "100%" }}
+        >
+          <Spinner />
+          <h4
+            className="p-2 col-10 mx-auto rounded text-center"
+            style={{ backgroundColor: "rgba(240, 240, 240, 0.5)" }}
+          >
+            Sedang Mengambil Sample
+          </h4>
+        </div>
+      );
+    }
+  };
+
   return (
     <div
-      className="Camera"
+      className="body-custom"
       style={{
         display: "flex",
         flexDirection: "column",
+        justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <h1>Halaman Train Wajah</h1>
       <div
+        className="border m-2 rounded"
         style={{
-          width: WIDTH,
-          height: HEIGHT,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <div style={{ position: "relative", width: WIDTH }}>
-          {!!videoConstraints ? (
-            <div style={{ position: "absolute" }}>
-              <Webcam
-                audio={false}
-                width={WIDTH}
-                height={HEIGHT}
-                ref={webcam}
-                screenshotFormat="image/jpeg"
-                screenshotQuality={0.8}
-                videoConstraints={videoConstraints}
-              />
-            </div>
-          ) : null}
-          {!!drawBox ? drawBox : null}
-        </div>
-      </div>
-      <div className="row mt-3" hidden={ChangeCamera}>
-        <div className="mx-auto">
-          <button
-            className="btn btn-primary mx-4"
-            onClick={() => setfacingmode("user")}
-          >
-            Front Camera
-          </button>
-          <button
-            className="btn btn-primary mx-4"
-            onClick={() => setfacingmode({ exact: "environment" })}
-          >
-            Back Camera
-          </button>
-        </div>
-      </div>
-      <div className="row mt-3 col-6 mx-auto">
-        <div className="col-md-6 mx-auto">
-          <button className="col-md-12 btn btn-outline-secondary" onClick={captured}>
-            Train
-          </button>
-        </div>
-        <div className="col-md-6 mx-auto">
-          <button className="col-md-12 btn btn-outline-secondary" onClick={()=>setdetections()}>
-            Clear Detection
-          </button>
-        </div>
-      </div>
-      <div className="row mt-3 col-6 border px-2 py-2">
-        <h5>Daftarkan Wajah</h5>
-        <div className="mb-1">Jumlah Sample Wajah : {ListFace.length}</div>
-        <input
-          type="text"
-          className="form-control text-center"
-          placeholder="Masukan Nama Wajah"
-          value={Nama}
-          onChange={(e) => setNama(e.target.value)}
-        />
-        <button
-          className="col-md-5 btn btn-primary mx-auto mt-2"
-          onClick={submit}
-        >
-          Submit
-        </button>
-        <button
-          className="col-md-5 btn btn-danger mx-auto mt-2"
-          onClick={() => {
-            setListFace([]);
-            setdetections();
-            alert("Sample Wajah Berhasil Direset");
-            setCount(Count + 1);
+        <h1 className="my-2 p-2 text-white">DAFTARKAN WAJAH</h1>
+        <div
+          style={{
+            width: WIDTH,
+            height: HEIGHT,
           }}
         >
-          Reset
-        </button>
-        <hr className="mt-1" />
-        <div className="text-center">
-          <h5>List Wajah Yang Terdaftar</h5>
-          {dataFace.map((face, key) => {
-            return (
-              <div key={key}>
-                {key + 1}. {face.name}
+          <div style={{ position: "relative", width: WIDTH }}>
+            {!!videoConstraints ? (
+              <div style={{ position: "absolute" }}>
+                {layout()}
+                <Webcam
+                  audio={false}
+                  width={WIDTH}
+                  height={HEIGHT}
+                  ref={webcam}
+                  screenshotFormat="image/jpeg"
+                  screenshotQuality={0.8}
+                  videoConstraints={videoConstraints}
+                />
               </div>
-            );
-          })}
+            ) : null}
+            {!!drawBox ? drawBox : null}
+          </div>
         </div>
+        <div className="row mt-3 col-10">
+          <div className="col-6 mx-auto">
+            <button
+              className="btn btn-outline-success my-1 mx-auto col-12"
+              onClick={captured}
+            >
+              Get Sample
+            </button>
+          </div>
+        </div>
+        <div className="row mt-1 col-10 p-2">
+          <div className="mb-1 text-center">
+            Sample Wajah : {ListFace.length}
+          </div>
+          <hr />
+          <h6 className="small text-center">
+            Jumlah Sample Minimal 5, lebih banyak lebih akurat
+          </h6>
+          <hr />
+          <input
+            type="text"
+            id="nama-wajah"
+            className="form-control text-center"
+            placeholder="Masukan Nama"
+            required
+          />
+          <button
+            className="col-md-5 btn btn-primary mx-auto my-2"
+            onClick={submit}
+          >
+            Submit
+          </button>
+          <button
+            className="col-md-5 btn btn-danger mx-auto my-2"
+            onClick={() => {
+              setListFace([]);
+              setdetections();
+              alert("Sample Wajah Berhasil Direset");
+              setCount(Count + 1);
+            }}
+          >
+            Reset Sample Wajah
+          </button>
+        </div>
+        <Link className="btn btn-secondary mt-2 col-5" to="/">
+          Home
+        </Link>
       </div>
-      <Link className="btn btn-success mx-auto mt-3 col-3" to="/Camera">
-        Test Camera
-      </Link>
-      <Link className="btn btn-secondary mx-auto mt-3 col-3" to="/">
-        Back
-      </Link>
     </div>
   );
 }

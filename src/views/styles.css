@@ -1,0 +1,8 @@
+.body-custom {
+  height: 100vh;
+  background: linear-gradient(180deg, #deaaff 0%, #ffffff 100%), #6db6eb;
+}
+
+.border-color {
+  border-color: linear-gradient(180deg, #ffffff 100%, #deaaff 0%);
+}

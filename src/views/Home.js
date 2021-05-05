@@ -7,15 +7,15 @@ export default function Home() {
     <div>
       <h2>Facial Recognition App</h2>
       <Link className="btn btn-primary mt-2 col-5" to="/photo">
-        Photo Input
+        Photo
       </Link>
       <br/>
       <Link className="btn btn-primary mt-2 col-5" to="/camera">
-        Video Input
+        Camera
       </Link>
       <br/>
       <Link className="btn btn-primary mt-2 col-5" to="/train">
-        Train With Video
+        Train Face With Camera
       </Link>
     </div>
   );
