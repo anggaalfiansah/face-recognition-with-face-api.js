@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import * as faces from "../api/faces";
 import Webcam from "react-webcam";
-import "./styles.css";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 

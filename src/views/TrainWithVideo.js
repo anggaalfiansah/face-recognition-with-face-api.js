@@ -5,7 +5,6 @@ import * as faces from "../api/faces";
 import Webcam from "react-webcam";
 import { Link, useHistory } from "react-router-dom";
 import Spinner from "./Loading/Spinner";
-import "./styles.css";
 
 export default function Train() {
   const dataFace = useSelector((state) => state.faceReducer.list);
