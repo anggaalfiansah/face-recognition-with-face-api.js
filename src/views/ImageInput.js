@@ -17,12 +17,12 @@ export default function ImageInput() {
   useEffect(() => {
     const fetch = async () => {
       await faces.loadModels();
-      setfaceMatcher(await faces.createMatcher(dataFace))
-      if(!!faceMatcher){
+      setfaceMatcher(await faces.createMatcher(dataFace));
+      if (!!faceMatcher) {
         await handleImage();
       } else {
-        setCount(Count+1)
-        console.log(Count)
+        setCount(Count + 1);
+        console.log(Count);
       }
     };
     return fetch();
@@ -45,7 +45,7 @@ export default function ImageInput() {
           console.log(match);
         }
       }
-    })
+    });
   };
 
   const handleFileChange = async (event) => {
@@ -100,28 +100,30 @@ export default function ImageInput() {
   }
 
   return (
-    <div className="container-fluid my-5">
-      <Link className="btn btn-secondary mx-auto mt-3 col-3" to="/">
-        Back
-      </Link>
-      <div className="row">
-        <div className="col-md-6 mx-auto">
-          <input
-            id="myFileUpload"
-            className="form-control mt-2"
-            type="file"
-            onChange={(e) => handleFileChange(e)}
-            accept=".jpg, .jpeg, .png"
-          />
-          <br />
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-md-5 mx-auto">
-          <div style={{ position: "absolute" }}>
-            <img src={imageURL} alt="imageURL" />
+    <div className="body-custom">
+      <div className="container-fluid">
+        <Link className="btn btn-secondary mx-auto mt-3 col-3" to="/">
+          Back
+        </Link>
+        <div className="row">
+          <div className="col-md-6 mx-auto">
+            <input
+              id="myFileUpload"
+              className="form-control mt-2"
+              type="file"
+              onChange={(e) => handleFileChange(e)}
+              accept=".jpg, .jpeg, .png"
+            />
+            <br />
           </div>
-          {!!drawBox ? drawBox : null}
+        </div>
+        <div className="row">
+          <div className="col-md-5 mx-auto">
+            <div style={{ position: "absolute" }}>
+              <img src={imageURL} alt="imageURL" />
+            </div>
+            {!!drawBox ? drawBox : null}
+          </div>
         </div>
       </div>
     </div>
