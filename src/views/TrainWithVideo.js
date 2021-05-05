@@ -225,7 +225,7 @@ export default function Train() {
             Reset Sample Wajah
           </button>
         </div>
-        <button className="btn btn-secondary mt-2 col-5" onClick={()=>history.push("/camera")}>
+        <button className="btn btn-secondary mt-2 col-5" onClick={()=>history.push("/")}>
           Home
         </button>
       </div>

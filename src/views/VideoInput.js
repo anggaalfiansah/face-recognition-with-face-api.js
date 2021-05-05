@@ -171,7 +171,7 @@ export default function CheckIn() {
           </div>
         </div>
       </div>
-      <button className="btn btn-primary mt-2 col-5" onClick={history.push("/Train")}>
+      <button className="btn btn-primary mt-2 col-5" onClick={()=>history.push("/train")}>
         Train Face With Camera
       </button>
     </div>
